@@ -5,9 +5,10 @@ set -o errexit
 set -o pipefail
 
 sudo apt-get install -y build-essential bison flex unzip libpopt-dev libpopt0 \
-	libnetpbm10 libnetpbm10-dev
+	libnetpbm10 libnetpbm10-dev vice
 
 cd /vagrant/tools/
+rm -rf build
 mkdir -p build
 cd build
 
