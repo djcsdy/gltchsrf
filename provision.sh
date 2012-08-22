@@ -70,3 +70,11 @@ gcc -Ihack -Isrc -Isrc/arch/unix src/petcat.c src/arch/unix/archdep.c \
 	src/ioutil.c src/resources.c -o src/petcat
 sudo mv src/petcat /usr/local/bin/petcat
 popd
+
+mkdir -p exomizer
+pushd exomizer
+unzip ../../exomizer204.zip
+cd src
+make
+sudo cp exomizer exoraw exobasic /usr/local/bin
+popd
