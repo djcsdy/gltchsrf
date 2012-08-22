@@ -1,8 +1,8 @@
 %.asm: %.src
 	k2pp <$< >$@
 
-%.obj: %.asm
-	k2asm -o $@ -x $(@:%.obj=%.hdr) -c $(@:%.obj=%.dnc) $<
+%.prg: %.asm
+	k2asm -o $@ -x $(@:%.prg=%.hdr) -c $(@:%.prg=%.dnc) $<
 
-%.obj: %.bas
+%.prg: %.bas
 	petcat -w2 <$< >$@
