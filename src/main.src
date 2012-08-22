@@ -1,0 +1,48 @@
+#include "c64.inc"
+
+.org $0900
+
+.scope start {
+	kernal.nmi=$0318
+
+	; Disable NMIs
+
+	lda #<disable_nmi
+	sta kernal.nmi
+	lda #>disable_nmi
+	sta kernal.nmi+1 ; set indirect NMI vector
+	lda #$81
+	sta cia2.icr ; enable CIA 2 Timer A interrupt
+	ldx #$01
+	stx cia2.ta
+	dex 
+	stx cia2.ta+1 ; prepare Timer A to count from 1 to 0
+	lda #$dd
+	sta cia2.cra ; cause an interrupt
+wait_nmi:
+	jmp wait_nmi ; loop until NMIs disabled
+disable_nmi:
+	; Mask CIA interrupts
+	lda #$7f
+	sta cia1.icr
+	sta cia2.icr
+
+	; Mask VIC-II interrupts
+	lda #$00
+	sta vic.irqmask
+
+	; Switch out BASIC, kernal ROMs
+	lda #pla.RAMIO
+	sta pla.dr
+
+	cli ; kernal has disabled IRQs, re-enable them
+
+	; Reset stack
+	ldx #$00
+	txs
+}
+
+.scope loop {
+	inc vic.border
+	jmp loop
+}
