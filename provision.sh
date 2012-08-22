@@ -9,7 +9,7 @@ sudo apt-get install -y build-essential bison flex unzip libpopt-dev libpopt0 \
 	libnetpbm10 libnetpbm10-dev
 
 cd /vagrant/tools/
-rm -rf build
+rm -rf build || true
 mkdir -p build
 cd build
 
