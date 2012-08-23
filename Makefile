@@ -21,4 +21,6 @@ vpath % $(SRC_DIR)
 %.prg: %.bas
 	petcat -w2 <$< >$@
 
+main.prg: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src
+
 endif
