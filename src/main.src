@@ -7,9 +7,9 @@
 
 	; Disable NMIs
 
-	lda #<disable_nmi
+	lda #<handle_nmi
 	sta kernal.nmi
-	lda #>disable_nmi
+	lda #>handle_nmi
 	sta kernal.nmi+1 ; set indirect NMI vector
 	lda #$81
 	sta cia2.icr ; enable CIA 2 Timer A interrupt
@@ -21,7 +21,9 @@
 	sta cia2.cra ; cause an interrupt
 wait_nmi:
 	jmp wait_nmi ; loop until NMIs disabled
-disable_nmi:
+handle_nmi:
+	; IRQs and NMIs are now disabled
+	
 	; Mask CIA interrupts
 	lda #$7f
 	sta cia1.icr
@@ -34,8 +36,14 @@ disable_nmi:
 	; Switch out BASIC, kernal ROMs
 	lda #pla.RAMIO
 	sta pla.dr
+	
+	; Acknowledge any IRQs that may have fired
+	lda cia1.icr
+	lda #$ff
+	sta vic.irqstatus
 
-	cli ; kernal has disabled IRQs, re-enable them
+	; Enable IRQs
+	cli
 
 	; Reset stack
 	ldx #$00
