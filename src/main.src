@@ -5,8 +5,19 @@
 {
 	kernal.nmi=$0318
 
-	; Disable NMIs
+	; Sanitize CPU flags
+	cld
+	clc
+	clv
 
+	; Disable screen, sprites. Make screen black.
+	lda #$0
+	sta vic.cr1
+	sta vic.sen
+	sta vic.bg
+	sta vic.border
+	
+	; Disable NMIs
 	lda #<handle_nmi
 	sta kernal.nmi
 	lda #>handle_nmi
@@ -53,13 +64,6 @@
 
 {
 	line = 45
-	
-	; Disable screen, sprites. Make screen black.
-	lda #$0
-	sta vic.cr1
-	sta vic.sen
-	sta vic.bg
-	sta vic.border
 	
 	{
 		; Set up raster IRQ
