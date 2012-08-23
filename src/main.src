@@ -214,10 +214,12 @@
 		nop
 		nop
 		nop
-		
-		; Change the border colour to show where we are
-		inc vic.border
-		dec vic.border
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
 		
 		; Do the DMA Delay by tweaking vic.cr1 at the correct time
 		lda #%01111011
