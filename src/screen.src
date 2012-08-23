@@ -1,0 +1,198 @@
+{
+	line = 45
+	
+	{
+		; Set up raster IRQ
+		sei
+		lda #<isr1
+		sta irq
+		lda #>isr1
+		sta irq + 1
+		lda #1
+		sta vic.irqmask
+		lda #line
+		sta vic.raster
+		lda #$1b
+		sta vic.cr1
+		cli
+		
+		; Wait for the IRQ to be triggered and handled
+		{
+			lda isr1.fired
+			beq _cont
+		}
+		
+		; Clear the 'fired' flag
+		lda #0
+		sta isr1.fired
+		
+		jmp _cont
+	}
+	
+	
+	.scope isr1 {
+		; Save registers
+		pha
+		txa
+		pha
+		tya
+		pha
+		
+		; Set a flag
+		inc fired
+		
+		; Set up another raster IRQ for the next line
+		lda #<isr2
+		sta irq
+		lda #>isr2
+		sta irq+1
+		inc vic.raster
+		
+		; Acknowledge the IRQ
+		lda #1
+		sta vic.irqstatus
+		
+		; Save the stack pointer
+		tsx
+		
+		; Enable IRQs
+		cli
+		
+		; nop until the next IRQ
+		{
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			nop
+			jmp _cont
+		}
+		
+		; Flag indicating that the IRQ has fired
+		.global fired: .byte $00
+	}
+
+	.align $100 $??
+	isr2: {
+		; Restore the stack pointer saved by isr1
+		txs
+		
+		; Delay a few cycles until we're on the very end of the
+		; raster line
+		ldx #8
+		{
+			dex
+			bne _cont
+		}
+		bit $ff
+		
+		; Correct for 1-cycle wobble
+		lda vic.raster
+		cmp vic.raster
+		{ beq _break }
+		
+		lda #$11
+		sta vic.cr1
+		
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		bit $ff
+		
+		; Calculate a variable delay by branching over nops.
+		; The delay is accurate to 2 cycles.
+		lda #39
+		sec
+		sbc x
+		lsr
+		sta x_branch_offset
+		
+		; Force branch always
+		clv
+		
+		; Introduce an additional 1-cycle delay if the LSB of the x
+		; offset is set.
+		{ bcc _break }
+		
+		; Branch somewhere into the nops depending on the x offset.
+		x_branch_offset = * + 1
+		bvc *
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		
+		; Do the DMA Delay by tweaking vic.cr1 at the correct time
+		lda #%01111011
+		dec vic.cr1
+		inc vic.cr1
+		sta vic.cr1
+		
+		; Acknowledge the IRQ
+		lda #1
+		sta vic.irqstatus
+		
+		; Enable IRQs
+		cli
+		
+		inc x
+		lda x
+		sec
+		sbc #40
+		{
+			bne _break
+			sta x
+		}
+		
+		; Restore registers
+		pla
+		tay
+		pla
+		tax
+		pla
+		
+		rti
+	}
+	
+	x: .byte $00
+	y: .byte $00
+}

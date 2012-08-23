@@ -1,0 +1,66 @@
+; Startup code.
+;
+; Get the C64 into a sane state:
+;  * Decimal mode flag cleared.
+;  * Screen blanked, sprites disabled.
+;  * IRQs and NMIs masked (but interrupt-disable flag cleared).
+;  * ROMs switched out.
+
+
+{
+	kernal.nmi=$0318
+
+	; Clear decimal mode
+	cld
+
+	; Disable screen, sprites. Make screen black.
+	lda #$0
+	sta vic.cr1
+	sta vic.sen
+	sta vic.bg
+	sta vic.border
+	
+	; Disable NMIs
+	lda #<handle_nmi
+	sta kernal.nmi
+	lda #>handle_nmi
+	sta kernal.nmi+1 ; set indirect NMI vector
+	lda #$81
+	sta cia2.icr ; enable CIA 2 Timer A interrupt
+	ldx #$01
+	stx cia2.ta
+	dex 
+	stx cia2.ta+1 ; prepare Timer A to count from 1 to 0
+	lda #$dd
+	sta cia2.cra ; cause an interrupt
+	
+	{ jmp _cont } ; loop until NMIs disabled
+	
+	handle_nmi:
+	; IRQs and NMIs are now disabled
+	
+	; Mask CIA interrupts
+	lda #$7f
+	sta cia1.icr
+	sta cia2.icr
+
+	; Mask VIC-II interrupts
+	lda #$00
+	sta vic.irqmask
+
+	; Switch out BASIC, kernal ROMs
+	lda #pla.RAMIO
+	sta pla.dr
+	
+	; Acknowledge any IRQs that may have fired
+	lda cia1.icr
+	lda #$ff
+	sta vic.irqstatus
+
+	; Enable IRQs
+	cli
+
+	; Reset stack
+	ldx #$ff
+	txs
+}
