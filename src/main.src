@@ -225,13 +225,6 @@
 		inc vic.cr1
 		sta vic.cr1
 		
-		; Restore registers
-		pla
-		tay
-		pla
-		tax
-		pla
-		
 		; Acknowledge the IRQ
 		lda #1
 		sta vic.irqstatus
@@ -247,6 +240,13 @@
 			bne _break
 			sta x
 		}
+		
+		; Restore registers
+		pla
+		tay
+		pla
+		tax
+		pla
 		
 		rti
 	}
