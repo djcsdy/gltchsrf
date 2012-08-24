@@ -135,13 +135,18 @@
 	.align $100 $??
 	.scope isr3 {
 		; Restore the stack pointer saved by isr2
-		txs
+		txs ; 2
 		
-		; Delay 49/50/51 cycles
-		ldx #7
+		; Set pixel scroll position
+		lda x ; 6
+		and #$07 ; 8
+		sta vic.cr2 ; 12
+		
+		; Delay 39/40/41 cycles
+		ldx #5
 		{
-			dex
-			bne _cont
+			dex ; 2
+			bne _cont ; 3/2
 		}
 		.global ntsc_pal_patch_1:
 		nop
