@@ -48,55 +48,43 @@
 		rti
 	}
 	
-	.scope isr2 {
+	isr2: {
 		; Save registers
-		pha
-		txa
-		pha
-		tya
-		pha
-		
-		; Set a flag
-		inc fired
+		pha ; 2
+		txa ; 5
+		pha ; 8
+		tya ; 10
+		pha ; 13
 		
 		; Set up another raster IRQ for the next line
-		lda #<isr3
-		sta irq
-		lda #>isr3
-		sta irq+1
-		inc vic.raster
+		lda #<isr3 ; 15
+		sta irq ; 19
+		lda #>isr3 ; 21
+		sta irq+1 ; 25
+		inc vic.raster ; 31
 		
 		; Acknowledge the IRQ
-		lda #1
-		sta vic.irqstatus
+		inc vic.irqstatus; 37
 		
 		; Save the stack pointer
-		tsx
+		tsx ; 39
 		
 		; Enable IRQs
-		cli
+		cli ; 41
 		
 		; nop until the next IRQ
 		{
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			nop
-			jmp _cont
+			nop ; 43
+			nop ; 45
+			nop ; 47
+			nop ; 49
+			nop ; 51
+			nop ; 53
+			nop ; 55
+			nop ; 57
+			nop ; 59 (IRQ should have happened by now)
+			jmp _cont ; compatibility with freezer carts
 		}
-		
-		; Flag indicating that the IRQ has fired
-		.global fired: .byte $00
 	}
 
 	.align $100 $??
