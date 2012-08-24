@@ -3,4 +3,9 @@
 .org $4000
 
 #include "startup.src"
+
+jsr screen.init
+
+{ jmp _cont }
+
 #include "screen.src"

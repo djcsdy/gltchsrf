@@ -1,11 +1,8 @@
-{
-	jsr set_up_irq1
-	{ jmp _cont }
+.scope screen {
+	IRQ1_LINE = 242
+	IRQ2_LINE = 45
 	
-	set_up_irq1: {
-		; Save accumulator
-		pha
-		
+	.export init: {
 		; Set up raster IRQ
 		php
 		sei
@@ -13,17 +10,14 @@
 		sta irq
 		lda #>isr1
 		sta irq + 1
-		lda #1
-		sta vic.irqmask
 		lda vic.cr1
 		and #$7f
 		sta vic.cr1
-		lda #242
+		lda #IRQ1_LINE
 		sta vic.raster
+		inc vic.irqmask
 		plp
 		
-		; Restore accumulator and return
-		pla
 		rts
 	}
 	
@@ -41,7 +35,7 @@
 		sta irq
 		lda #>isr2
 		sta irq + 1
-		lda #45
+		lda #IRQ2_LINE
 		sta vic.raster
 		
 		; Ack IRQ and re-enable interrupts
@@ -191,18 +185,12 @@
 		inc vic.cr1
 		sta vic.cr1
 		
-		; Set up next IRQ in chain
-		jsr set_up_irq1
-		
 		; Acknowledge the IRQ
 		lda #1
 		sta vic.irqstatus
 		
 		lda #$1b
 		sta vic.cr1
-		
-		; Enable IRQs
-		cli
 		
 		inc x
 		lda x
@@ -212,6 +200,14 @@
 			bne _break
 			sta x
 		}
+		
+		; Set up next raster IRQ in chain
+		lda #<isr1
+		sta irq
+		lda #>isr1
+		sta irq + 1
+		lda #IRQ1_LINE
+		sta vic.raster
 		
 		; Restore registers
 		pla
