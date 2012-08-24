@@ -26,7 +26,7 @@ Build output goes into the `build` directory.
     licenses.
 *   Everything else is licensed as follows (the “MIT” license).
 
-Copyright © 2011, 2012 Daniel J. Cassidy.
+Copyright © 2012 Daniel J. Cassidy.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the “Software”), to deal
