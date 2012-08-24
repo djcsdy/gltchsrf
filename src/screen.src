@@ -201,11 +201,15 @@
 		nop
 		nop
 		nop
-		nop ; this op is the furthest that bvc will ever branch
 		nop
 		nop
 		nop
 		nop
+		nop
+		
+		; Here is the furthest that bvc will ever branch
+		
+		; Patchable 2/3/4 cycle delay for NTSC/PAL compatibility
 		.global ntsc_pal_patch_2:
 		nop
 		nop
