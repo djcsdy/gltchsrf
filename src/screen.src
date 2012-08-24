@@ -1,3 +1,10 @@
+; Display management routines.
+;
+; * Horizontal character scrolling (with DMA Delay).
+; * TODO: Horizontal smooth scrolling.
+; * TODO: Sprite multiplexer.
+; * TODO: Frame counter.
+
 .scope screen {
 	IRQ1_LINE = 242
 	IRQ2_LINE = 45
