@@ -23,8 +23,10 @@
 	; Disable NMIs
 	lda #<handle_nmi
 	sta kernal.nmi
+	sta nmi
 	lda #>handle_nmi
-	sta kernal.nmi+1 ; set indirect NMI vector
+	sta nmi
+	sta kernal.nmi+1 ; set direct and kernal NMI vectors
 	lda #$81
 	sta cia2.icr ; enable CIA 2 Timer A interrupt
 	ldx #$01
