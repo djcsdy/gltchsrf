@@ -1,8 +1,13 @@
 {
-	line = 45
+	jsr set_up_irq1
+	{ jmp _cont }
 	
-	{
+	set_up_irq1: {
+		; Save accumulator
+		pha
+		
 		; Set up raster IRQ
+		php
 		sei
 		lda #<isr1
 		sta irq
@@ -10,27 +15,46 @@
 		sta irq + 1
 		lda #1
 		sta vic.irqmask
-		lda #line
-		sta vic.raster
-		lda #$1b
+		lda vic.cr1
+		and #$7f
 		sta vic.cr1
-		cli
+		lda #242
+		sta vic.raster
+		plp
 		
-		; Wait for the IRQ to be triggered and handled
-		{
-			lda isr1.fired
-			beq _cont
-		}
-		
-		; Clear the 'fired' flag
-		lda #0
-		sta isr1.fired
-		
-		jmp _cont
+		; Restore accumulator and return
+		pla
+		rts
 	}
 	
+	; Raster ISR, fires on line 242
+	isr1: {
+		; Save accumulator
+		pha
+		
+		; Disable screen
+		lda #$7b
+		sta vic.cr1
+		
+		; Set up next raster IRQ in chain
+		lda #<isr2
+		sta irq
+		lda #>isr2
+		sta irq + 1
+		lda #45
+		sta vic.raster
+		
+		; Ack IRQ and re-enable interrupts
+		lda #1
+		sta vic.irqstatus
+		cli
+		
+		; Restore accumulator and return
+		pla
+		rti
+	}
 	
-	.scope isr1 {
+	.scope isr2 {
 		; Save registers
 		pha
 		txa
@@ -42,9 +66,9 @@
 		inc fired
 		
 		; Set up another raster IRQ for the next line
-		lda #<isr2
+		lda #<isr3
 		sta irq
-		lda #>isr2
+		lda #>isr3
 		sta irq+1
 		inc vic.raster
 		
@@ -82,8 +106,8 @@
 	}
 
 	.align $100 $??
-	isr2: {
-		; Restore the stack pointer saved by isr1
+	isr3: {
+		; Restore the stack pointer saved by isr2
 		txs
 		
 		; Delay a few cycles until we're on the very end of the
@@ -167,9 +191,15 @@
 		inc vic.cr1
 		sta vic.cr1
 		
+		; Set up next IRQ in chain
+		jsr set_up_irq1
+		
 		; Acknowledge the IRQ
 		lda #1
 		sta vic.irqstatus
+		
+		lda #$1b
+		sta vic.cr1
 		
 		; Enable IRQs
 		cli
