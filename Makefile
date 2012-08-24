@@ -8,6 +8,8 @@ BUILD_DIR:=.
 
 vpath % $(SRC_DIR)
 
+.SECONDARY:
+
 %.asm: %.src
 	k2pp -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(BUILD_DIR) <$< >$@
 
@@ -21,6 +23,6 @@ vpath % $(SRC_DIR)
 %.prg: %.bas
 	petcat -w2 <$< >$@
 
-main.prg: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src
+main.asm: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src
 
 endif
