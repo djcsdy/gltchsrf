@@ -3,6 +3,44 @@
 	IRQ2_LINE = 45
 	
 	.export init: {
+		; Detect PAL/NTSC
+		{
+			lda vic.raster
+			{
+				cmp vic.raster
+				beq _cont
+			}
+			bmi _cont
+			
+			cmp #$06
+			beq ntsc_263
+			
+			cmp #$05
+			beq ntsc_262
+			
+			; PAL
+			; 312 raster lines
+			; 63 cycles per line
+			lda #$80 ; illegal opcode NOP Immediate
+			sta isr3.ntsc_pal_patch_1
+			sta isr3.ntsc_pal_patch_2
+			jmp _break
+			
+			; NTSC
+			; 263 raster lines
+			; 65 cycles per line
+			ntsc_263:
+			jmp _break
+			
+			; NTSC
+			; 262 raster lines
+			; 64 cycles per line
+			ntsc_262:
+			lda #$04 ; illegal opcode NOP ZeroPage
+			sta isr3.ntsc_pal_patch_1
+			sta isr3.ntsc_pal_patch_2
+		}
+		
 		; Set up raster IRQ
 		php
 		sei
@@ -88,18 +126,22 @@
 	}
 
 	.align $100 $??
-	isr3: {
+	.scope isr3 {
 		; Restore the stack pointer saved by isr2
 		txs
 		
-		; Delay a few cycles until we're on the very end of the
-		; raster line
-		ldx #8
+		; Delay 49/50/51 cycles
+		ldx #7
 		{
 			dex
 			bne _cont
 		}
-		bit $ff
+		.global ntsc_pal_patch_1:
+		nop
+		nop
+		nop
+		nop
+		nop
 		
 		; Correct for 1-cycle wobble
 		lda vic.raster
@@ -109,19 +151,6 @@
 		lda #$11
 		sta vic.cr1
 		
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		bit $ff
-		
 		; Calculate a variable delay by branching over nops.
 		; The delay is accurate to 2 cycles.
 		lda #39
@@ -130,14 +159,12 @@
 		lsr
 		sta x_branch_offset
 		
-		; Force branch always
-		clv
-		
 		; Introduce an additional 1-cycle delay if the LSB of the x
 		; offset is set.
 		{ bcc _break }
 		
 		; Branch somewhere into the nops depending on the x offset.
+		{ clv }
 		x_branch_offset = * + 1
 		bvc *
 		nop
@@ -154,6 +181,7 @@
 		nop
 		nop
 		nop
+		nop ; this op is the furthest that bvc will ever branch
 		nop
 		nop
 		nop
@@ -164,6 +192,19 @@
 		nop
 		nop
 		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		nop
+		bit $ff
+		.global ntsc_pal_patch_2:
 		nop
 		nop
 		
