@@ -158,13 +158,26 @@
 		lda #$11
 		sta vic.cr1
 		
+		; Calculate the character scroll position (x / 8)
+		char_x=3
+		lda x+1 ; 4
+		lsr ; 6
+		sta char_x+1 ; 9
+		lda x ; 13
+		ror ; 15
+		sta char_x ; 18
+		lsr char_x+1 ; 23
+		ror char_x ; 28
+		lsr char_x+1 ; 33
+		ror char_x ; 38
+		
 		; Calculate a variable delay by branching over nops.
 		; The delay is accurate to 2 cycles.
-		lda #39
-		sec
-		sbc x
-		lsr
-		sta x_branch_offset
+		lda #39 ; 40
+		sec ; 42
+		sbc char_x ; 45
+		lsr ; 47
+		sta x_branch_offset ; 51
 		
 		; Introduce an additional 1-cycle delay if the LSB of the x
 		; offset is set.
@@ -193,24 +206,6 @@
 		nop
 		nop
 		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		nop
-		bit $ff
 		.global ntsc_pal_patch_2:
 		nop
 		nop
@@ -225,16 +220,26 @@
 		lda #1
 		sta vic.irqstatus
 		
+		; Enable screen
 		lda #$1b
 		sta vic.cr1
 		
+		; Scroll at a constant rate for now.
 		inc x
-		lda x
-		sec
-		sbc #40
 		{
 			bne _break
+			inc x+1
+		}
+		{
+			lda #1
+			cmp x+1
+			bne _break
+			lda #64
+			cmp x
+			bne _break
+			lda #0
 			sta x
+			sta x+1
 		}
 		
 		; Set up next raster IRQ in chain
@@ -255,5 +260,5 @@
 		rti
 	}
 	
-	x: .byte $00
+	x: .buf 2
 }
