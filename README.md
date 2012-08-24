@@ -7,6 +7,7 @@ so you can get set up very quickly.
 
 1.  Install [Vagrant][1].
 2.  From the project directory:
+
         vagrant up
 
 
