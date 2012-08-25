@@ -7,63 +7,7 @@
 #include "startup.src"
 
 jsr screen.init
-
-{
-	; Wait for ready frames to be processed
-	{
-		lda screen.frames_ready
-		bne _cont
-	}
-	
-	; Wait for pending frames
-	{
-		lda screen.frames_pending
-		beq _cont
-	}
-	pha
-	
-	; Arbitrarily scroll one pixel per frame for now.
-	{
-		eor #$ff
-		clc
-		adc #$01
-		clc
-		adc screen.x
-		sta screen.x
-		bcs _break
-		dec screen.x + 1
-	}
-	{
-		bit screen.x + 1
-		bmi negative
-		
-		positive:
-		lda screen.x
-		sec
-		sbc #$40
-		tax
-		lda screen.x + 1
-		sbc #$1
-		bcc _break
-		sta screen.x + 1
-		stx screen.x
-		jmp _break
-		
-		negative:
-		lda screen.x
-		clc
-		adc #$40
-		sta screen.x
-		lda screen.x + 1
-		adc #$1
-		sta screen.x + 1
-	}
-	
-	; Mark frames ready
-	pla
-	sta screen.frames_ready
-	
-	jmp _cont
-}
+jmp game_loop
 
 #include "screen.src"
+#include "game_loop.src"

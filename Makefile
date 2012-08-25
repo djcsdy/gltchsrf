@@ -27,12 +27,13 @@ all: gltchsrf.d64
 %.prg: %.bas
 	petcat -w2 <$< >$@
 
-main.asm: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src zero_page.inc
+main.asm: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src \
+	zero_page.inc game_loop.src
 
 sprites.prg: sprites.d64
 	d642prg $< sprites $@
 
-gltchsrf.prg: main.prg main.dnc sprites.prg
+gltchsrf.prg: main.prg sprites.prg
 	k2link -d gltchsrf.dnc $^ -o $@
 
 gltchsrf.dnc: gltchsrf.prg
