@@ -48,6 +48,10 @@
 			sta isr3.ntsc_pal_patch_2
 		}
 		
+		; Initialize frame counter
+		lda #0
+		sta frame
+		
 		; Set up raster IRQ
 		php
 		sei
@@ -259,6 +263,15 @@
 		lda #IRQ1_LINE
 		sta vic.raster
 		
+		; Increment frame counter
+		{
+			ldx frame
+			cpx #$ff
+			beq _break
+			inx
+			stx frame
+		}
+		
 		; Restore registers
 		pla
 		tay
@@ -270,4 +283,5 @@
 	}
 	
 	x: .buf 2
+	.global frame = 4
 }
