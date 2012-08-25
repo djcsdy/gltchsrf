@@ -48,10 +48,6 @@
 			sta isr3.ntsc_pal_patch_2
 		}
 		
-		; Initialize frame counter
-		lda #0
-		sta frame
-		
 		; Set up raster IRQ
 		php
 		sei
