@@ -27,7 +27,7 @@ all: main.d64
 %.prg: %.bas
 	petcat -w2 <$< >$@
 
-main.asm: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src
+main.asm: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src zero_page.inc
 
 main.exo2.prg: main.prg
 	exomizer sfx 0x4000 -t64 -o $@ '-X dec $$d020 inc $$d020' \
