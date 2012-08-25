@@ -38,6 +38,9 @@ main.d64: main.exo2.prg
 	mkd64 $@ 'main,00'
 	copy2d64 $@ $<
 
+sprites.prg: sprites.d64
+	d642prg $< sprites $@
+
 clean:
 	# handled by target.mk
 
