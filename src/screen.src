@@ -3,7 +3,7 @@
 ; * Horizontal character scrolling (with DMA Delay).
 ; * Horizontal smooth scrolling.
 ; * TODO: Sprite multiplexer.
-; * TODO: Frame counter.
+; * Frame counter.
 
 .scope screen {
 	IRQ1_LINE = 242
@@ -234,24 +234,6 @@
 		lda #$1b
 		sta vic.cr1
 		
-		; Scroll at a constant rate for now.
-		inc x
-		{
-			bne _break
-			inc x+1
-		}
-		{
-			lda #1
-			cmp x+1
-			bne _break
-			lda #64
-			cmp x
-			bne _break
-			lda #0
-			sta x
-			sta x+1
-		}
-		
 		; Set up next raster IRQ in chain
 		lda #<isr1
 		sta irq
@@ -261,13 +243,22 @@
 		sta vic.raster
 		
 		; Increment frame counter
+		lda frames_pending
+		sec
+		sbc frames_ready
 		{
-			ldx frame
-			cpx #$ff
-			beq _break
-			inx
-			stx frame
+			bcs _break
+			lda #0
 		}
+		{
+			cmp #$ff
+			beq _break
+			clc
+			adc #1
+		}
+		sta frames_pending
+		lda #0
+		sta frames_ready
 		
 		; Restore registers
 		pla
@@ -280,5 +271,6 @@
 	}
 	
 	.global x = zp.screen.x
-	.global frame = zp.screen.frame
+	.global frames_pending = zp.screen.frames_pending
+	.global frames_ready = zp.screen.frames_ready
 }

@@ -8,6 +8,45 @@
 
 jsr screen.init
 
-{ jmp _cont }
+{
+	; Wait for ready frames to be processed
+	{
+		lda screen.frames_ready
+		bne _cont
+	}
+	
+	; Wait for pending frames
+	{
+		lda screen.frames_pending
+		beq _cont
+	}
+	pha
+	
+	; Arbitrarily scroll one pixel per frame for now.
+	{
+		clc
+		adc screen.x
+		sta screen.x
+		bcc _break
+		inc screen.x + 1
+	}
+	{
+		lda screen.x
+		sec
+		sbc #$40
+		tax
+		lda screen.x + 1
+		sbc #$1
+		bcc _break
+		sta screen.x + 1
+		stx screen.x
+	}
+	
+	; Mark frames ready
+	pla
+	sta screen.frames_ready
+	
+	jmp _cont
+}
 
 #include "screen.src"
