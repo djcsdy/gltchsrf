@@ -1,7 +1,7 @@
 ; Display management routines.
 ;
 ; * Horizontal character scrolling (with DMA Delay).
-; * TODO: Horizontal smooth scrolling.
+; * Horizontal smooth scrolling.
 ; * TODO: Sprite multiplexer.
 ; * TODO: Frame counter.
 
