@@ -1,5 +1,7 @@
 #include "c64.inc"
 
+#include "zero_page.inc"
+
 .org $4000
 
 #include "startup.src"
