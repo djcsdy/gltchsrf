@@ -43,7 +43,60 @@
 		}
 		sta zp.tmp
 		
-		; Update player position
+		; Calculate player movement speed
+		asl
+		clc
+		adc zp.tmp
+		sta zp.tmp+2
+		
+		; Move player
+		lda cia1.pra
+		sta zp.tmp+1
+		{
+			; Up
+			and #1
+			bne _break
+			lda player.y
+			sec
+			sbc zp.tmp+2
+			sta player.y
+		}
+		{
+			; Down
+			lda zp.tmp+1
+			and #2
+			bne _break
+			lda player.y
+			clc
+			adc zp.tmp+2
+			sta player.y
+		}
+		{
+			; Left
+			lda zp.tmp+1
+			and #4
+			bne _break
+			lda player.x
+			sec
+			sbc zp.tmp+2
+			sta player.x
+			bcs _break
+			dec player.x+1
+		}
+		{
+			; Right
+			lda zp.tmp+1
+			and #8
+			bne _break
+			lda player.x
+			clc
+			adc zp.tmp+2
+			sta player.x
+			bcc _break
+			inc player.x+1
+		}
+		
+		; Update player sprite position
 		lda player.x
 		sta vic.s0x
 		sta vic.s1x
