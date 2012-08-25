@@ -155,6 +155,17 @@
 		jmp _cont
 	}
 	
+	.align $100 $??
+	
+	sin: {
+#pybegin
+from math import sin, pi
+max = 167
+for i in range(256):
+	print ".byte ", int(round((sin(pi*2*i/256) + 1)/2 * max))
+#pyend
+	}
+	
 	player.x = zp.game_loop.player.x
 	player.y = zp.game_loop.player.y
 }
