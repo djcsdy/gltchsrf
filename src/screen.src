@@ -7,7 +7,8 @@
 
 .scope screen {
 	IRQ1_LINE = 242
-	IRQ2_LINE = 45
+	IRQ2_LINE = 44
+	IRQ3_LINE = 46
 	
 	.export init: {
 		; Detect PAL/NTSC
@@ -93,41 +94,86 @@
 		rti
 	}
 	
+	.align $100 $??
 	isr2: {
 		; Save registers
 		pha ; 2
 		txa ; 5
 		pha ; 8
-		tya ; 10
-		pha ; 13
 		
 		; Set up another raster IRQ for the next line
-		lda #<isr3 ; 15
-		sta irq ; 19
-		lda #>isr3 ; 21
-		sta irq+1 ; 25
-		inc vic.raster ; 31
+		lda #<isr3 ; 10
+		sta irq ; 14
+		lda #>isr3 ; 16
+		sta irq+1 ; 20
+		lda #IRQ3_LINE ; 22
+		sta vic.raster ; 26
 		
 		; Acknowledge the IRQ
-		inc vic.irqstatus; 37
+		inc vic.irqstatus; 32
 		
 		; Save the stack pointer
-		tsx ; 39
+		tsx ; 34
+		
+		; If there are frames ready, update the screen buffers.
+		{
+			lda #0 ; 36
+			cmp frames_ready ; 39
+			beq _break ; 41/42
+			lda x ; 44
+			sta buffer.x ; 47
+			lda x + 1 ; 50
+			sta buffer.x + 1 ; 53
+		} ; 42/53
 		
 		; Enable IRQs
-		cli ; 41
+		cli ; 44/55
 		
 		; nop until the next IRQ
 		{
-			nop ; 43
-			nop ; 45
-			nop ; 47
-			nop ; 49
-			nop ; 51
-			nop ; 53
-			nop ; 55
-			nop ; 57
-			nop ; 59 (IRQ should have happened by now)
+			nop ; 46/57
+			nop ; 48/59
+			nop ; 50/61
+			nop ; 52/63
+			nop ; 54/65
+			nop ; 56/67
+			nop ; 58/69
+			nop ; 60/71
+			nop ; 62/73
+			nop ; 64/75
+			nop ; 66/77
+			nop ; 68/79
+			nop ; 70/81
+			nop ; 72/83
+			nop ; 74/85
+			nop ; 76/87
+			nop ; 78/89
+			nop ; 80/91
+			nop ; 82/93
+			nop ; 84/95
+			nop ; 86/97
+			nop ; 88/99
+			nop ; 90/101
+			nop ; 92/103
+			nop ; 94/105
+			nop ; 96/107
+			nop ; 98/109
+			nop ; 100/111
+			nop ; 102/113
+			nop ; 104/115
+			nop ; 106/117
+			nop ; 108/119
+			nop ; 110/121
+			nop ; 112/123
+			nop ; 114/125
+			nop ; 116/127
+			nop ; 118/129
+			nop ; 120/131
+			nop ; 122/133
+			nop ; 124/135
+			nop ; 126/137
+			nop ; 128/139
+			nop ; 130/141 (IRQ should have happened by now)
 			jmp _cont ; compatibility with freezer carts
 		}
 	}
@@ -138,7 +184,7 @@
 		txs ; 2
 		
 		; Set pixel scroll position
-		lda x ; 5
+		lda buffer.x ; 5
 		and #$07 ; 7
 		sta vic.cr2 ; 11
 		
@@ -165,10 +211,10 @@
 		
 		; Calculate the character scroll position (x / 8)
 		char_x=zp.screen.char_x
-		lda x+1 ; 3
+		lda buffer.x+1 ; 3
 		lsr ; 5
 		sta char_x+1 ; 8
-		lda x ; 11
+		lda buffer.x ; 11
 		ror ; 13
 		sta char_x ; 16
 		lsr char_x+1 ; 21
@@ -262,13 +308,13 @@
 		
 		; Restore registers
 		pla
-		tay
-		pla
 		tax
 		pla
 		
 		rti
 	}
+	
+	buffer.x = zp.screen.buffer.x
 	
 	.global x = zp.screen.x
 	.global frames_pending = zp.screen.frames_pending
