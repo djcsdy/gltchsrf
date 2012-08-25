@@ -21,8 +21,10 @@ all: gltchsrf.d64
 	k2asm -o $@ -x $(@:%.prg=%.hdr) -c $(@:%.prg=%.dnc) $<
 
 %.hdr: %.prg
+	:
 
 %.dnc: %.prg
+	:
 
 %.prg: %.bas
 	petcat -w2 <$< >$@
