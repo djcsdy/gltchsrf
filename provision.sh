@@ -78,3 +78,15 @@ cd src
 make
 sudo cp exomizer exoraw exobasic /usr/local/bin
 popd
+
+mkdir -p c64tools
+pushd c64tools
+unzip ../../c64tools.zip
+pushd src
+make d642prg d64ren c64pack c64unp packprg sprrip makedisk symbols filejoin \
+	filespli cs cpack cdepack pmap pchunk bin2hex pack
+sudo cp d642prg d64ren c64pack c64unp packprg sprrip makedisk symbols \
+	filejoin filespli cs cpack cdepack pmap pchunk bin2hex pack \
+	/usr/local/bin
+popd
+popd
