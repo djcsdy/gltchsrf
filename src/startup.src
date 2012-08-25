@@ -61,6 +61,15 @@
 
 	; Enable IRQs
 	cli
+	
+	; Wipe zero page
+	ldx #$fe
+	lda #0
+	{
+		sta 1,x
+		dex
+		bne _cont
+	}
 
 	; Reset stack
 	ldx #$ff
