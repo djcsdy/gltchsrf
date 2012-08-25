@@ -12,7 +12,7 @@ vpath % $(SRC_DIR)
 
 .PHONY: all clean
 
-all: main.d64
+all: gltchsrf.d64
 
 %.asm: %.src
 	k2pp -I$(INCLUDE_DIR) -I$(SRC_DIR) -I$(BUILD_DIR) <$< >$@
@@ -29,17 +29,22 @@ all: main.d64
 
 main.asm: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src zero_page.inc
 
-main.exo2.prg: main.prg
+sprites.prg: sprites.d64
+	d642prg $< sprites $@
+
+gltchsrf.prg: main.prg main.dnc sprites.prg
+	k2link -d gltchsrf.dnc $^ -o $@
+
+gltchsrf.dnc: gltchsrf.prg
+
+gltchsrf.exo2.prg: gltchsrf.prg
 	exomizer sfx 0x4000 -t64 -o $@ '-X dec $$d020 inc $$d020' \
 		'-s lda #$$0 sta $$d011 sta $$d015 sta $$d020 sta $$d021' \
 		-- $<
 
-main.d64: main.exo2.prg
-	mkd64 $@ 'main,00'
+gltchsrf.d64: gltchsrf.exo2.prg
+	mkd64 $@ 'gltchsrf,00'
 	copy2d64 $@ $<
-
-sprites.prg: sprites.d64
-	d642prg $< sprites $@
 
 clean:
 	# handled by target.mk
