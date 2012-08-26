@@ -35,10 +35,14 @@ main.asm: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src \
 sprites.prg: sprites.d64
 	d642prg $< sprites $@
 
-gltchsrf.prg: main.prg sprites.prg
-	k2link -d gltchsrf.dnc $^ -o $@
+convert-text: convert-text.c
+	gcc -o $@ $^
 
-gltchsrf.dnc: gltchsrf.prg
+text.prg: convert-text text.txt
+	$(abspath $<) < $(lastword $^) > $@
+
+gltchsrf.prg: main.prg sprites.prg text.prg
+	k2link -d gltchsrf.dnc $^ -o $@
 
 gltchsrf.exo2.prg: gltchsrf.prg
 	exomizer sfx 0x4000 -t64 -o $@ '-X dec $$d020 inc $$d020' \
