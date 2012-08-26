@@ -20,7 +20,7 @@
 	sta vic.smcm
 	lda #vic.BLACK
 	sta vic.s0c
-	lda #vic.RED
+	lda #vic.GREEN
 	sta vic.s1c
 	lda #vic.DARKGREY
 	sta vic.smc0
