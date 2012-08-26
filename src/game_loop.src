@@ -161,7 +161,7 @@
 			draw_chars_offset = * + 1
 			ldx #00
 #pybegin
-for i in range(24):
+for i in range(25):
   print "lda text + ", i, ",x"
   print "sta $0400 + ", (i*40), ",x"
   print "lda noise + ", i, ",x"
