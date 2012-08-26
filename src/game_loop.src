@@ -1,4 +1,5 @@
 #include "text.hdr"
+#include "noise.hdr"
 
 .scope game_loop {
 	; Initialize player position
@@ -154,14 +155,26 @@
 		{
 			lda screen.x
 			and #7
-			beq lets_do_this
+			beq draw_chars
 			jmp _break
-			lets_do_this:
+			draw_chars:
+			draw_chars_offset = * + 1
+			ldx #00
 #pybegin
-for i in range(25):
-  print "lda text + ", i
-  print "sta $0400 + ", (i*40)
+for i in range(24):
+  print "lda text + ", i, ",x"
+  print "sta $0400 + ", (i*40), ",x"
+  print "lda noise + ", i, ",x"
+  print "sta $d800 + ", (i*40), ",x"
 #pyend
+			lda draw_chars_offset
+			clc
+			adc #1
+			sta draw_chars_offset
+			sec
+			sbc #40
+			bcc _break
+			sta draw_chars_offset
 		}
 		
 		; Mark frames ready
