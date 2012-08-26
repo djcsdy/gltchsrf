@@ -24,6 +24,8 @@ Build output goes into the `build` directory.
 
 *   The `tools` directory contains third-party tools, which have their own
     licenses.
+*   `src/text.txt` contains text from _The Origin of Species_ by Charles
+    Darwin. It is in the Public Domain.
 *   Everything else is licensed as follows (the “MIT” license).
 
 Copyright © 2012 Daniel J. Cassidy.
