@@ -1,3 +1,5 @@
+#include "text.hdr"
+
 .scope game_loop {
 	; Initialize player position
 	lda #$80
@@ -146,6 +148,20 @@
 			lda screen.x + 1
 			adc #$1
 			sta screen.x + 1
+		}
+		
+		; Add stuff to edge of screen
+		{
+			lda screen.x
+			and #7
+			beq lets_do_this
+			jmp _break
+			lets_do_this:
+#pybegin
+for i in range(25):
+  print "lda text + ", i
+  print "sta $0400 + ", (i*40)
+#pyend
 		}
 		
 		; Mark frames ready
