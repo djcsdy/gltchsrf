@@ -30,7 +30,7 @@ all: gltchsrf.d64
 	petcat -w2 <$< >$@
 
 main.asm: main.src $(INCLUDE_DIR)/c64.inc startup.src screen.src \
-	zero_page.inc game_loop.src text.hdr
+	zero_page.inc game_loop.src text.hdr noise.hdr
 
 sprites.prg: sprites.d64
 	d642prg $< sprites $@
@@ -41,7 +41,7 @@ convert-text: convert-text.c
 text.prg: convert-text text.txt
 	$(abspath $<) $@ text.hdr text < $(lastword $^)
 
-gltchsrf.prg: main.prg sprites.prg text.prg
+gltchsrf.prg: main.prg sprites.prg text.prg noise.prg
 	k2link -d gltchsrf.dnc $^ -o $@
 
 gltchsrf.exo2.prg: gltchsrf.prg
