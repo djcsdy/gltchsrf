@@ -15,7 +15,7 @@ so you can get set up very quickly.
 
 *   From the project directory:
 
-        vagrant ssh -c make
+        vagrant ssh -c 'cd /vagrant; make'
 
 Build output goes into the `build` directory.
 
